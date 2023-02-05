@@ -32,3 +32,27 @@
    32  cd cat library.c
    33  cat library.c
    34  history > cmds.log
+   35  git add cmds.log
+   36  git add cmds.log library.c
+   37  git commit -m "First commit" -a
+   38  git branch
+   39  git push -u origin master
+   40  cd WS1\1_15
+   41  cd WS1
+   42  cs 1_ls -latr
+   43  cs 1_15
+   44  cd 1_15
+   45  cd ../
+   46  git bush -u origin master
+   47  git push -u origin master
+   48  git bush -u origin master
+   49  git push -u origin master
+   50  git config --global user.name "adinnh20"
+   51  git config --global user.email "adinhh20@gmail.com"
+   52  git config -l
+   53  git clone https://github.com/adinhh20/cs149
+   54  git push -u origin master
+   55  git commit-m "First commit" -a
+   56  git add cmds.log 1_15.c
+   57  ls -latr
+   58  history > cmds.log
