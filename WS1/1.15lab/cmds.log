@@ -1,0 +1,34 @@
+    1  sudo apt install gcc
+    2  sudo apt install make
+    3  sudo snap install clion --classic
+    4  pwd
+    5  ls -latr
+    6  mkdir cs149
+    7  cd cs 149
+    8  cd cs149
+    9  git init
+   10  sudo apt install git
+   11  git init
+   12  sudo apt install git
+   13  sudo killall apt
+   14  sudo dpkg --configure -a
+   15  sudo rm /var/lib/apt/lists/lock
+   16  sudo rm /var/lib/apt/archives/lock
+   17  sudo rm /var/lib/dpkg/lock*
+   18  sudo dpkg --configure -a
+   19  sudo apt update
+   20  sudo apt install git
+   21  git init
+   22  git remote add origin https://github.com/adinhh20/cs149.git
+   23  git config --global user.email "youremail"
+   24  git config --global user.name "yourname"
+   25  mkdir WS1
+   26  cd WS1
+   27  git add .
+   28  wget -o out.pdf https://tinyurl/yy94jltt
+   29  ls -latr
+   30  install wine
+   31  cd 1.15lab
+   32  cd cat library.c
+   33  cat library.c
+   34  history > cmds.log
