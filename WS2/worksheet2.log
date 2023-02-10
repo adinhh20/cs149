@@ -1,0 +1,87 @@
+    1  sudo apt install gcc
+    2  sudo apt install make
+    3  sudo snap install clion --classic
+    4  pwd
+    5  ls -latr
+    6  mkdir cs149
+    7  cd cs 149
+    8  cd cs149
+    9  git init
+   10  sudo apt install git
+   11  git init
+   12  sudo apt install git
+   13  sudo killall apt
+   14  sudo dpkg --configure -a
+   15  sudo rm /var/lib/apt/lists/lock
+   16  sudo rm /var/lib/apt/archives/lock
+   17  sudo rm /var/lib/dpkg/lock*
+   18  sudo dpkg --configure -a
+   19  sudo apt update
+   20  sudo apt install git
+   21  git init
+   22  git remote add origin https://github.com/adinhh20/cs149.git
+   23  git config --global user.email "youremail"
+   24  git config --global user.name "yourname"
+   25  mkdir WS1
+   26  cd WS1
+   27  git add .
+   28  wget -o out.pdf https://tinyurl/yy94jltt
+   29  ls -latr
+   30  install wine
+   31  cd 1.15lab
+   32  cd cat library.c
+   33  cat library.c
+   34  history > cmds.log
+   35  git add cmds.log
+   36  git add cmds.log library.c
+   37  git commit -m "First commit" -a
+   38  git branch
+   39  git push -u origin master
+   40  cd WS1\1_15
+   41  cd WS1
+   42  cs 1_ls -latr
+   43  cs 1_15
+   44  cd 1_15
+   45  cd ../
+   46  git bush -u origin master
+   47  git push -u origin master
+   48  git bush -u origin master
+   49  git push -u origin master
+   50  git config --global user.name "adinnh20"
+   51  git config --global user.email "adinhh20@gmail.com"
+   52  git config -l
+   53  git clone https://github.com/adinhh20/cs149
+   54  git push -u origin master
+   55  git commit-m "First commit" -a
+   56  git add cmds.log 1_15.c
+   57  ls -latr
+   58  history > cmds.log
+   59  git add cmds.log 1_15.c
+   60  git add cmds.log 1_16.c
+   61  git add cmds.log 1_17.c
+   62  git add cmds.log 1_18.c
+   63  git add cmds.log 1_19.c
+   64  git add cmds.log 1_20.c
+   65  git commit -m "First commit" -a
+   66  git branch
+   67  git push -u origin master
+   68  git clone https://github.com/adinhh20/cs149.git
+   69  git clone https://github.com/adinhh20/cs149
+   70  cd ../
+   71  git clone -b master https://github.com/adinhh20/cs149
+   72  git clone -b master https://github.com/adinhh20/cs149.git cs149_anhdinh
+   73  cd Download
+   74  cd Downloads
+   75  cd ../
+   76  git clone -b master https://github.com/adinhh20/cs149.git cs149_anhdinh
+   77  date
+   78  pwd
+   79  cd Desktop/
+   80  ls
+   81  ls -latr
+   82  cd WS2
+   83  ls -latr
+   84  echo $?
+   85  man ps
+   86  top
+   87  history > worksheet2.log
