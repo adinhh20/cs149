@@ -116,3 +116,8 @@
   116  cd WS3
   117  git add worksheet3.log
   118  history > worksheet3.log
+  119  git add worksheet3.log
+  120  git commit -m "First commit" -a
+  121  git push -u origin master
+  122  git clone -b master http://github/adinhh20/cs149.git cs149_anhdinh
+  123  history > worksheet3.log
