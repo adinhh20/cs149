@@ -11,6 +11,9 @@ int main(void) {
     if ((num1 < num2) && (num1 < num3)) min = num1;
     else if ((num1 > num2) && (num2 < num3)) min = num2;
     else if ((num3 < num2) && (num1 > num3)) min = num3;
+    else if ((num1 = num2) && (num1 < num3)) min = num1;
+    else if ((num1 = num3) && (num1 < num2)) min = num1;
+    else min = num1;
 
     printf("%d\n", min);
 
