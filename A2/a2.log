@@ -289,3 +289,7 @@
   289  git pull -u origin master
   290  history > a.log
   291  history > a2.log
+  292  git add a2.log *.c
+  293  git commit -m "First commit" -a
+  294  git push -u origin master
+  295  history > a2.log
