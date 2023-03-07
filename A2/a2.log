@@ -293,3 +293,11 @@
   293  git commit -m "First commit" -a
   294  git push -u origin master
   295  history > a2.log
+  296  git add a2.log *.c
+  297  git commit -m "First commit" -a
+  298  git push -u origin master
+  299  git branch
+  300  git pull
+  301  git config --global pull.rebase false
+  302  git pull
+  303  history > a2.log
