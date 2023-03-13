@@ -26,9 +26,9 @@ int main(int argc, char *argv[]) {
 
     // Create pipes for each child process
     int **pipes = malloc(sizeof(int *) * num_files);
-    for (int i = 0; i < num_files; i++) {
-        pipes[i] = malloc(sizeof(int) * 2);
-        if (pipe(pipes[i]) == -1) {
+    for (int a = 0; a < num_files; a++) {
+        pipes[a] = malloc(sizeof(int) * 2);
+        if (pipe(pipes[a]) == -1) {
             perror("pipe");
             exit(1);
         }
@@ -88,14 +88,14 @@ int main(int argc, char *argv[]) {
 
     // Print line counts
     printf("Line counts:\n");
-    for (int i = 0; i < linecount_size; i++) {
-        printf("%d %s", linecounts[i].count, linecounts[i].line);
-        free(linecounts[i].line);
+    for (int b = 0; b < linecount_size; b++) {
+        printf("%d %s", linecounts[b].count, linecounts[b].line);
+        free(linecounts[b].line);
     }
 
     free(linecounts);
-    for (int i = 0; i < num_files; i++) {
-        free(pipes[i]);
+    for (int c = 0; c < num_files; c++) {
+        free(pipes[c]);
     }
     free(pipes);
 
