@@ -1,2 +1,2 @@
 # cs149-Operating System
-# Languages and tools: C, Linux, VirtualBox, CLion
+Languages and tools: C, Linux, VirtualBox, CLion
