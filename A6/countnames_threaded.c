@@ -4,101 +4,169 @@
 #include <pthread.h>
 #include <time.h>
 
-#define MAX_NAMES 100
 #define MAX_NAME_LENGTH 30
+#define MAX_NAMES 100
+
+pthread_mutex_t log_mutex;
+pthread_mutex_t count_mutex;
+pthread_mutex_t thread_data_mutex;
+
+int log_index = 1;
 
 typedef struct {
-    int id;
-    pthread_t tid;
+    pthread_t thread_id;
+    int thread_num;
 } THREADDATA;
 
 typedef struct {
-    char names[MAX_NAMES][MAX_NAME_LENGTH+1];
+    char names[MAX_NAMES][MAX_NAME_LENGTH + 1];
     int counts[MAX_NAMES];
     int num_names;
-} NAME_COUNTS;
+} NAMECOUNTS;
 
-pthread_mutex_t counts_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t log_mutex = PTHREAD_MUTEX_INITIALIZER;
-pthread_mutex_t p_mutex = PTHREAD_MUTEX_INITIALIZER;
-int log_index = 0;
-THREADDATA *p = NULL;
-
-void logprint(char *message) {
-    time_t now = time(NULL);
-    struct tm *t = localtime(&now);
+void print_log_message(char* message) {
+    time_t t = time(NULL);
+    struct tm *tm = localtime(&t);
+    char date_time[20];
+    strftime(date_time, sizeof(date_time), "%d/%m/%Y %I:%M:%S %p", tm);
     pthread_mutex_lock(&log_mutex);
-    printf("Logindex %d, thread %d, PID %d, %02d/%02d/%d %02d:%02d:%02d: %s\n", log_index, p->id, getpid(), t->tm_mday, t->tm_mon+1, t->tm_year+1900, t->tm_hour, t->tm_min, t->tm_sec, message);
-    log_index++;
+    printf("Logindex %d, thread %d, PID %d, %s: %s\n", log_index++, (int)pthread_self(), getpid(), date_time, message);
     pthread_mutex_unlock(&log_mutex);
 }
 
-void update_counts(char *name, NAME_COUNTS *counts) {
-    int i;
-    for (i = 0; i < counts->num_names; i++) {
-        if (strcmp(name, counts->names[i]) == 0) {
-            counts->counts[i]++;
-            return;
+void init_counts(NAMECOUNTS* nc) {
+    memset(nc->names, 0, sizeof(nc->names));
+    memset(nc->counts, 0, sizeof(nc->counts));
+    nc->num_names = 0;
+}
+
+int find_name_index(char* name, NAMECOUNTS* nc) {
+    for (int i = 0; i < nc->num_names; i++) {
+        if (strcmp(name, nc->names[i]) == 0) {
+            return i;
         }
     }
-    if (counts->num_names < MAX_NAMES) {
-        strcpy(counts->names[counts->num_names], name);
-        counts->counts[counts->num_names] = 1;
-        counts->num_names++;
+    return -1;
+}
+
+void add_name(char* name, NAMECOUNTS* nc) {
+    int index = find_name_index(name, nc);
+    if (index == -1) {
+        index = nc->num_names++;
+        strcpy(nc->names[index], name);
+    }
+    nc->counts[index]++;
+}
+
+void count_names(FILE* file, NAMECOUNTS* nc, int thread_num) {
+    char name[MAX_NAME_LENGTH + 1];
+    while (fscanf(file, "%s", name) == 1) {
+        add_name(name, nc);
+        char message[100];
+        sprintf(message, "read name \"%s\" in file %d", name, thread_num);
+        print_log_message(message);
     }
 }
 
-void *count_names(void *arg) {
-    THREADDATA *data = (THREADDATA *) arg;
-    NAME_COUNTS *counts = (NAME_COUNTS *) malloc(sizeof(NAME_COUNTS));
-    counts->num_names = 0;
-    FILE *fp;
-    char line[MAX_NAME_LENGTH+1];
-    int i;
-
-    pthread_mutex_lock(&p_mutex);
-    if (p == NULL) {
-        p = data;
-    }
-    pthread_mutex_unlock(&p_mutex);
-
-    logprint("opening file");
-    fp = fopen(data->id == 1 ? "names1.txt" : "names2.txt", "r");
-    if (fp == NULL) {
-        logprint("error opening file");
+void* thread_func(void* arg) {
+    THREADDATA* p = (THREADDATA*)arg;
+    char* filename = (p->thread_num == 1) ? "./names1.txt" : "./names2.txt";
+    FILE* file = fopen(filename, "r");
+    if (file == NULL) {
+        printf("Error: could not open file %s\n", filename);
         exit(1);
     }
+    char message[100];
+    sprintf(message, "opened file %s", filename);
+    print_log_message(message);
 
-    while (fgets(line, MAX_NAME_LENGTH+1, fp) != NULL) {
-        line[strcspn(line, "\n")] = 0;
-        pthread_mutex_lock(&counts_mutex);
-        update_counts(line, counts);
-        pthread_mutex_unlock(&counts_mutex);
+    NAMECOUNTS* nc = malloc(sizeof(NAMECOUNTS));
+    init_counts(nc);
+
+    count_names(file, nc, p->thread_num);
+
+    pthread_mutex_lock(&count_mutex);
+    for (int i = 0; i < nc->num_names; i++) {
+        char message[100];
+        sprintf(message, "counted %d instances of name \"%s\"", nc->counts[i], nc->names[i]);
+        print_log_message(message);
     }
+    pthread_mutex_unlock(&count_mutex);
 
-    fclose(fp);
-    logprint("closing file");
+    pthread_mutex_lock(&thread_data_mutex);
+    free(p);
+    pthread_mutex_unlock(&thread_data_mutex);
 
-    pthread_mutex_lock(&p_mutex);
-    if (p == data) {
-        free(p);
-        p = NULL;
-    }
-    pthread_mutex_unlock(&p_mutex);
+    fclose(file);
 
-    for (i = 0; i < counts->num_names; i++) {
-        pthread_mutex_lock(&counts_mutex);
-        printf("%s: %d\n", counts->names[i], counts->counts[i]);
-        pthread_mutex_unlock(&counts_mutex);
-    }
-
-    free(counts);
-    pthread_exit(NULL);
+    return NULL;
 }
 
 int main(int argc, char *argv[]) {
+    // Initialize variables
+    int i;
+    pthread_t t1, t2;
+    THREADDATA *p = NULL;
+    COUNTS counts = {0};
+    pthread_mutex_t count_lock, log_lock, data_lock;
+    pthread_mutex_init(&count_lock, NULL);
+    pthread_mutex_init(&log_lock, NULL);
+    pthread_mutex_init(&data_lock, NULL);
+    LogIndex = 0;
+
+    // Ensure that the program is called with exactly 2 arguments
     if (argc != 3) {
-        printf("Usage: %s file1 file2\n", argv[0]);
-        return 1;
+        fprintf(stderr, "Usage: ./countnames_threaded <file1> <file2>\n");
+        exit(EXIT_FAILURE);
     }
 
+    // Assign input files to threads
+    int file1 = 1, file2 = 2;
+
+    // Create THREADDATA object for thread 1
+    pthread_mutex_lock(&data_lock);
+    if (p == NULL) {
+        p = (THREADDATA*) malloc(sizeof(THREADDATA));
+    }
+    p->threadID = 1;
+    p->inputFile = argv[file1];
+    p->counts = &counts;
+    p->count_lock = &count_lock;
+    p->log_lock = &log_lock;
+    p->data_lock = &data_lock;
+    pthread_mutex_unlock(&data_lock);
+
+    // Create thread 1 and begin reading from input file
+    pthread_create(&t1, NULL, read_names, p);
+    pthread_join(t1, NULL);
+
+    // Create THREADDATA object for thread 2
+    pthread_mutex_lock(&data_lock);
+    if (p == NULL) {
+        p = (THREADDATA*) malloc(sizeof(THREADDATA));
+    }
+    p->threadID = 2;
+    p->inputFile = argv[file2];
+    p->counts = &counts;
+    p->count_lock = &count_lock;
+    p->log_lock = &log_lock;
+    p->data_lock = &data_lock;
+    pthread_mutex_unlock(&data_lock);
+
+    // Create thread 2 and begin reading from input file
+    pthread_create(&t2, NULL, read_names, p);
+    pthread_join(t2, NULL);
+
+    // Print the final counts of all names
+    print_counts(&counts);
+
+    // Deallocate THREADDATA object
+    free(p);
+
+    // Destroy mutex locks
+    pthread_mutex_destroy(&count_lock);
+    pthread_mutex_destroy(&log_lock);
+    pthread_mutex_destroy(&data_lock);
+
+    return 0;
+}
