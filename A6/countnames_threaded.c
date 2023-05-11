@@ -104,15 +104,13 @@ void* thread_func(void* arg) {
 
 int main(int argc, char *argv[]) {
     // Initialize variables
-    int i;
     pthread_t t1, t2;
     THREADDATA *p = NULL;
-    COUNTS counts = {0};
-    pthread_mutex_t count_lock, log_lock, data_lock;
-    pthread_mutex_init(&count_lock, NULL);
-    pthread_mutex_init(&log_lock, NULL);
-    pthread_mutex_init(&data_lock, NULL);
-    LogIndex = 0;
+
+    pthread_mutex_init(&count_mutex, NULL);
+    pthread_mutex_init(&log_mutex, NULL);
+    pthread_mutex_init(&thread_data_mutex, NULL);
+    log_index = 0;
 
     // Ensure that the program is called with exactly 2 arguments
     if (argc != 3) {
@@ -124,49 +122,30 @@ int main(int argc, char *argv[]) {
     int file1 = 1, file2 = 2;
 
     // Create THREADDATA object for thread 1
-    pthread_mutex_lock(&data_lock);
+    pthread_mutex_lock(&thread_data_mutex);
     if (p == NULL) {
         p = (THREADDATA*) malloc(sizeof(THREADDATA));
     }
-    p->threadID = 1;
-    p->inputFile = argv[file1];
-    p->counts = &counts;
-    p->count_lock = &count_lock;
-    p->log_lock = &log_lock;
-    p->data_lock = &data_lock;
-    pthread_mutex_unlock(&data_lock);
+    p->thread_num = 1;
+    pthread_mutex_unlock(&thread_data_mutex);
 
     // Create thread 1 and begin reading from input file
-    pthread_create(&t1, NULL, read_names, p);
-    pthread_join(t1, NULL);
+    pthread_create(&t1, NULL, thread_func, p);
 
     // Create THREADDATA object for thread 2
-    pthread_mutex_lock(&data_lock);
+    pthread_mutex_lock(&thread_data_mutex);
     if (p == NULL) {
         p = (THREADDATA*) malloc(sizeof(THREADDATA));
     }
-    p->threadID = 2;
-    p->inputFile = argv[file2];
-    p->counts = &counts;
-    p->count_lock = &count_lock;
-    p->log_lock = &log_lock;
-    p->data_lock = &data_lock;
-    pthread_mutex_unlock(&data_lock);
+    p->thread_num = 2;
+    pthread_mutex_unlock(&thread_data_mutex);
 
     // Create thread 2 and begin reading from input file
-    pthread_create(&t2, NULL, read_names, p);
+    pthread_create(&t2, NULL, thread_func, p);
+
+    // Wait for both threads to complete
+    pthread_join(t1, NULL);
     pthread_join(t2, NULL);
-
-    // Print the final counts of all names
-    print_counts(&counts);
-
-    // Deallocate THREADDATA object
-    free(p);
-
-    // Destroy mutex locks
-    pthread_mutex_destroy(&count_lock);
-    pthread_mutex_destroy(&log_lock);
-    pthread_mutex_destroy(&data_lock);
 
     return 0;
 }
